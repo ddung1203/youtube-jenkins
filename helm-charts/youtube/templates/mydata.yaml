@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "youtube.fullname" . }}-mydata
+  labels:
+  {{- include "youtube.labels" . | nindent 4 }}
+data:
+  COOKIE_SECRET: {{ required "mydata.cookieSecret is required" .Values.mydata.cookieSecret
+    | b64enc | quote }}
+  MONGO_PASSWORD: {{ required "mydata.mongoPassword is required" .Values.mydata.mongoPassword
+    | b64enc | quote }}
+  MONGO_URL: {{ required "mydata.mongoUrl is required" .Values.mydata.mongoUrl |
+    b64enc | quote }}
+  MONGO_USERNAME: {{ required "mydata.mongoUsername is required" .Values.mydata.mongoUsername
+    | b64enc | quote }}
+type: Opaque

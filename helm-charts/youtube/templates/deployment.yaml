@@ -1,61 +1,48 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "youtube.fullname" . }}
+  name: {{ include "youtube.fullname" . }}-deployment
   labels:
-    {{- include "youtube.labels" . | nindent 4 }}
+    app: {{ include "youtube.fullname" . }}
+  {{- include "youtube.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
+  strategy:
+    type: {{ .Values.strategy.type }}
+    rollingUpdate:
+      maxSurge: {{ .Values.strategy.maxSurge }}
+      maxUnavailable: {{ .Values.strategy.maxUnavailable }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "youtube.selectorLabels" . | nindent 6 }}
+      app: {{ include "youtube.fullname" . }}
+    {{- include "youtube.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "youtube.selectorLabels" . | nindent 8 }}
+        app: {{ include "youtube.fullname" . }}
+      {{- include "youtube.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "youtube.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+      - env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        envFrom:
+        - secretRef:
+            name: {{ include "youtube.fullname" . }}-mydata
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.PullPolicy }}
+        livenessProbe: {{- toYaml .Values.livenessProbe | nindent 10 }}
+        readinessProbe: {{- toYaml .Values.readinessProbe | nindent 12 }}
+        name: youtube
+        ports:
+        - containerPort: 4000
+        resources: {{- toYaml .Values.resources | nindent 14 }}
+        volumeMounts:
+        - mountPath: /app/uploads
+          name: {{ include "youtube.fullname" . }}-persistent-storage
+      imagePullSecrets:
+      - name: regsecret
+      volumes:
+      - name: {{ include "youtube.fullname" . }}-persistent-storage
+        persistentVolumeClaim:
+          claimName: {{ include "youtube.fullname" . }}-persistent-storage

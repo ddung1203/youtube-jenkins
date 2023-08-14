@@ -1,15 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "youtube.fullname" . }}
+  name: {{ include "youtube.fullname" . }}-service
   labels:
-    {{- include "youtube.labels" . | nindent 4 }}
+    app: {{ include "youtube.fullname" . }}
+  {{- include "youtube.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
-  ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
   selector:
-    {{- include "youtube.selectorLabels" . | nindent 4 }}
+    app: {{ include "youtube.fullname" . }}
+  {{- include "youtube.selectorLabels" . | nindent 4 }}
+  ports:
+	{{- .Values.service.ports | toYaml | nindent 2 -}}
