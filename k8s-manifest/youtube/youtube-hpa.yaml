@@ -1,14 +1,14 @@
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: youtube-hpa
 spec:
-  minReplcias: 3
+  minReplicas: 3
   maxReplicas: 5
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: youtube
+    name: youtube-deployment
   metrics:
     - type: Resource
       resource:

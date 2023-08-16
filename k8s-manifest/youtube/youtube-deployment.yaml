@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: youtube
+  name: youtube-deployment
   labels:
     app: youtube
 spec:
@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: youtube
-          image: ghcr.io/ddung1203/youtube-reloaded:2
+          image: ghcr.io/ddung1203/youtube-reloaded:${BUILD_NUMBER}
           imagePullPolicy: Always
           ports:
             - containerPort: 4000
