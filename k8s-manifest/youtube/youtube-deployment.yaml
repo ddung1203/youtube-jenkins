@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: youtube
-          image: ghcr.io/ddung1203/youtube-reloaded:1
+          image: ghcr.io/ddung1203/youtube-reloaded:2
           imagePullPolicy: Always
           ports:
             - containerPort: 4000
