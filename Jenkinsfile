@@ -72,6 +72,7 @@ spec:
         script { 
           withKubeConfig([credentialsId: 'KUBECONFIG', serverUrl: 'https://kubernetes.default', namespace: 'youtube']) {
             container('kubectl') {
+              sh "sed -i 's/youtube-reloaded:latest/youtube-reloaded:${BUILD_NUMBER}/g' k8s-manifest/youtube/youtube-deployment.yaml"
               sh 'kubectl apply -f k8s-manifest/youtube/youtube-deployment.yaml'
             }
           }
