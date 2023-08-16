@@ -1,7 +1,7 @@
 pipeline {
-  environment {
-    // registryCredential = "docker"
-  }
+  // environment {
+  //   registryCredential = "docker"
+  // }
 
   agent {
     kubernetes {
