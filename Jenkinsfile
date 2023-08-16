@@ -47,7 +47,7 @@ spec:
     stage('Checkout') {
       steps {
         script {
-          git url: 'https://github.com/ddung1203/youtube-jenkins.git', credentialsId: ''
+          git branch: 'dev', url: 'https://github.com/ddung1203/youtube-jenkins.git', credentialsId: ''
           sh 'ls -al'
         }
       }
