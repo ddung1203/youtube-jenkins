@@ -1,7 +1,4 @@
 pipeline {
-  // environment {
-  //   registryCredential = "docker"
-  // }
 
   agent {
     kubernetes {
@@ -21,7 +18,6 @@ spec:
     tty: true
   - name: kaniko
     image: gcr.io/kaniko-project/executor:debug
-    imagePullPolicy: Always
     command:
     - /busybox/cat
     tty: true
