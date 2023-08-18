@@ -199,3 +199,83 @@ replicaset.apps/youtube-deployment-84b945b4db   0         0         0       20h
 NAME                                              REFERENCE                       TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
 horizontalpodautoscaler.autoscaling/youtube-hpa   Deployment/youtube-deployment   12%/50%    3         5         3          20h
 ```
+
+## Prometheus를 사용한 Jenkins 모니터링
+
+Jenkins로 CI/CD를 구축한 경우에 빌드 상태나 Jenkins 메모리 사용률, Plugin 상태 등을 조회하고자 하는 경우가 발생한다.
+
+이러한 문제가 있는 경우 알람은 필수이다.
+
+- Jenkins Agent가 Offline인 경우 알람
+- Queue에 대기 중인 Job이 많은 경우 알람
+- 기타 등등..
+
+이러한 경우 Prometheus의 데이터를 이용하여 AlertManager와의 연동 또는 Grafana의 Alarm 기능과 연동할 수 있다.
+
+참고: [Prometheus-stack 설치](https://github.com/ddung1203/DevOps/blob/main/DevOps/Prometheus_Grafana.md#prometheus-grafana)
+
+참고: [Grafana Prometheus-stack 빌트인 모니터링](https://github.com/ddung1203/DevOps/blob/main/DevOps/Prometheus_Grafana.md#built-in-%EB%8C%80%EC%8B%9C%EB%B3%B4%EB%93%9C-%ED%99%95%EC%9D%B8)
+
+참고: [AlertManager 설정](https://github.com/ddung1203/DevOps/blob/main/DevOps/Prometheus_Grafana.md#alertmanager-%EC%84%A4%EC%A0%95)
+
+참고: [Jenkins Prometheus Metrics Plugin](https://plugins.jenkins.io/prometheus/)
+
+`Prometheus-Metrics` Plugin 설치 시 하기와 같이 확인할 수 있다.
+
+![jenkins-prometheus-metric](./img/jenkins-prometheus-metric-01.png)
+
+이후, Prometheus에 Scrape Configration 설정을 통해 Prometheus Scrape 구성을 추가하는 Secret Key를 지정할 수 있다. Jenkins 내 빌드 상태나 메모리 사용률 등의 조회를 위해 스크랩한 데이터를 집계하기 위함이다.
+
+`prometheus-additional.yaml`
+
+```yaml
+- job_name: "Jenkins Job"
+  metrics_path: "/prometheus"
+  scheme: http
+  static_configs:
+    - targets: ["jenkins-0.jenkins.jenkins.svc.cluster.local:8080"]
+```
+
+```bash
+kubectl create secret generic additional-scrape-configs --from-file=prometheus-additional.yaml --dry-run=client -o yaml > additional-scrape-configs.yaml
+```
+
+> `additional-scrape-configs.yaml`
+>
+> ```yaml
+> apiVersion: v1
+> data:
+>   prometheus-additional.yaml: LSBqb2JfbmFtZTogIkplbmtpbnMgSm9iIgogIG1ldHJpY3NfcGF0aDogIi9wcm9tZXRoZXVzIgogIHNjaGVtZTogaHR0cAogIHN0YXRpY19jb25maWdzOgogICAgLSB0YXJnZXRzOiBbImplbmtpbnMuamVua2luczo4MDgwIl0K
+> kind: Secret
+> metadata:
+>   creationTimestamp: null
+>   name: additional-scrape-configs
+> ```
+>
+> 상기 `prometheus-addition.yaml` 파일로부터 `additional-scrape-configs.yaml`를 생성토록 하며, `prometheus-additional.yaml`을 base64 encode의 결과값을 상기와 같이 저장한다.
+
+```bash
+kubectl apply -f additional-scrape-configs.yaml -n monitoring
+```
+
+이후, `additionalScrapeConfigs`를 추가한다.
+
+```yaml
+# kubectl edit prometheuses.monitoring.coreos.com -n monitoring
+# 하기 Code 추가
+
+spec:
+  additionalScrapeConfigs:
+    name: additional-scrape-configs
+    key: prometheus-additional.yaml
+```
+
+적용 확인을 위해 Prometheus의 Target 내 Scrape를 확인한다.
+
+![jenkins-prometheus-metric](./img/jenkins-prometheus-metric-02.png)
+
+![jenkins-prometheus-metric](./img/jenkins-prometheus-metric-03.png)
+
+[Grafana 샘플 Dashboard - ID: 12646](https://grafana.com/grafana/dashboards/12646-jenkins/)
+
+![jenkins-prometheus-metric](./img/jenkins-prometheus-metric-04.png)
