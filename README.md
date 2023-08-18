@@ -226,6 +226,8 @@ Jenkins로 CI/CD를 구축한 경우에 빌드 상태나 Jenkins 메모리 사�
 
 이후, Prometheus에 Scrape Configration 설정을 통해 Prometheus Scrape 구성을 추가하는 Secret Key를 지정할 수 있다. Jenkins 내 빌드 상태나 메모리 사용률 등의 조회를 위해 스크랩한 데이터를 집계하기 위함이다.
 
+참고: [Prometheus Operator - Additional Scrape Configuration](https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/additional-scrape-config.md)
+
 `prometheus-additional.yaml`
 
 ```yaml
