@@ -233,7 +233,7 @@ Jenkins로 CI/CD를 구축한 경우에 빌드 상태나 Jenkins 메모리 사�
   metrics_path: "/prometheus"
   scheme: http
   static_configs:
-    - targets: ["jenkins-0.jenkins.jenkins.svc.cluster.local:8080"]
+    - targets: ["jenkins.jenkins:8080"]
 ```
 
 ```bash
