@@ -3,7 +3,7 @@ kind: StatefulSet
 metadata:
   name: mongo-statefulset
 spec:
-  serviceName: "mongo"
+  serviceName: "mongo-service"
   replicas: 3
   selector:
     matchLabels:
@@ -48,30 +48,30 @@ spec:
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
-            storage: 5Gi
+            storage: 10Gi
 #
 # rsconf = {
 #   _id: 'rs-0',
 #   members: [
 #     {
 #       _id: 0,
-#       host: 'mongo-0.mongo.mongo.svc.cluster.local:27017'
+#       host: 'mongo-statefulset-0.mongo-service.mongo.svc.cluster.local:27017'
 #     },
 #     {
 #       _id: 1,
-#       host: 'mongo-1.mongo.mongo.svc.cluster.local:27017'
+#       host: 'mongo-statefulset-1.mongo-service.mongo.svc.cluster.local:27017'
 #     },
 #     {
 #       _id: 2,
-#       host: 'mongo-2.mongo.mongo.svc.cluster.local:27017'
+#       host: 'mongo-statefulset-2.mongo-service.mongo.svc.cluster.local:27017'
 #     }
 #   ]
 # };
-#
+
 # rs.initiate(rsconf);
-#
+
 # use admin;
-#
+
 # db.createUser({ user: "mongo", pwd: "mongo", roles: [ "userAdminAnyDatabase", "dbAdminAnyDatabase", "readWriteAnyDatabase" ]});
-#
+
 # -> admin role
