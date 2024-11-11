@@ -6,7 +6,6 @@ mydata:
   mongoUrl: ""
   cookieSecret: ""
 
-replicaCount: 3
 strategy:
   type: RollingUpdate
   maxSurge: 1

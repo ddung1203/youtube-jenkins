@@ -11,7 +11,7 @@ spec:
     rollingUpdate:
       maxSurge: {{ .Values.strategy.maxSurge }}
       maxUnavailable: {{ .Values.strategy.maxUnavailable }}
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.hpa.minReplicas }}
   selector:
     matchLabels:
       app: {{ include "youtube.fullname" . }}
